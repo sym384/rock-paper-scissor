@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>Rock, Paper, Scissors</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #101827;
+      color: #f4f7fb;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(70, 101, 177, .24), transparent 55%),
+        #101827;
+    }
+
+    button { font: inherit; }
+
+    .game {
+      width: min(100%, 620px);
+      padding: clamp(24px, 6vw, 48px);
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 28px;
+      background: rgba(24, 35, 53, .94);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .35);
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #9caecb;
+      font-size: .78rem;
+      font-weight: 750;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 8vw, 3.2rem);
+      letter-spacing: -.055em;
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      margin: 12px 0 28px;
+      color: #b3bfd2;
+    }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .score {
+      padding: 14px 8px;
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, .045);
+    }
+
+    .score span {
+      display: block;
+      color: #aab8cd;
+      font-size: .78rem;
+      font-weight: 650;
+    }
+
+    .score strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 1.8rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1rem;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .choice {
+      min-height: 112px;
+      padding: 16px 8px;
+      border: 1px solid rgba(255, 255, 255, .13);
+      border-radius: 18px;
+      color: #f4f7fb;
+      background: #26364f;
+      cursor: pointer;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+
+    .choice:hover, .choice:focus-visible {
+      transform: translateY(-3px);
+      border-color: #91aaff;
+      background: #304466;
+      outline: none;
+    }
+
+    .choice:active { transform: translateY(0); }
+
+    .emoji {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 2rem;
+    }
+
+    .result {
+      min-height: 126px;
+      margin-top: 24px;
+      padding: 19px;
+      border-radius: 18px;
+      background: rgba(8, 14, 24, .42);
+    }
+
+    .round {
+      margin: 0 0 9px;
+      color: #aab8cd;
+      font-size: .82rem;
+      font-weight: 650;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .message {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 750;
+    }
+
+    .throws {
+      margin: 9px 0 0;
+      color: #c2ccdc;
+      font-size: .94rem;
+    }
+
+    .result[data-outcome="win"] .message { color: #80e6b2; }
+    .result[data-outcome="lose"] .message { color: #ff9e9e; }
+    .result[data-outcome="tie"] .message { color: #f7d477; }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 20px;
+      color: #9caecb;
+      font-size: .82rem;
+    }
+
+    .reset {
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 10px;
+      color: #dce5f3;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .reset:hover, .reset:focus-visible {
+      border-color: #91aaff;
+      outline: none;
+    }
+
+    @media (max-width: 430px) {
+      body { padding: 14px; }
+      .game { border-radius: 22px; }
+      .choice { min-height: 98px; }
+      .footer { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="game" aria-labelledby="title">
+    <p class="eyebrow">Ready for a round?</p>
+    <h1 id="title">Rock, Paper, Scissors</h1>
+    <p class="subtitle">Make your move and see if you can beat the computer.</p>
+
+    <section class="scoreboard" aria-label="Scoreboard">
+      <div class="score"><span>You</span><strong id="player-score">0</strong></div>
+      <div class="score"><span>Ties</span><strong id="ties">0</strong></div>
+      <div class="score"><span>Computer</span><strong id="computer-score">0</strong></div>
+    </section>
+
+    <h2>Choose your move</h2>
+    <div class="choices" aria-label="Your move">
+      <button class="choice" type="button" data-move="1" aria-label="Choose Rock">
+        <span class="emoji" aria-hidden="true">🪨</span>Rock
+      </button>
+      <button class="choice" type="button" data-move="2" aria-label="Choose Paper">
+        <span class="emoji" aria-hidden="true">📄</span>Paper
+      </button>
+      <button class="choice" type="button" data-move="3" aria-label="Choose Scissors">
+        <span class="emoji" aria-hidden="true">✂️</span>Scissors
+      </button>
+    </div>
+
+    <section class="result" id="result" data-outcome="start" aria-live="polite" aria-atomic="true">
+      <p class="round" id="round">Round 0</p>
+      <p class="message" id="message">Your move!</p>
+      <p class="throws" id="throws">Pick rock, paper, or scissors to play.</p>
+    </section>
+
+    <footer class="footer">
+      <span>First to win? Keep playing as long as you like.</span>
+      <button class="reset" id="reset" type="button">Reset score</button>
+    </footer>
+  </main>
+
+  <script>
+    const moves = ["", "Rock", "Paper", "Scissors"];
+    const playerScore = document.querySelector("#player-score");
+    const computerScore = document.querySelector("#computer-score");
+    const ties = document.querySelector("#ties");
+    const roundLabel = document.querySelector("#round");
+    const message = document.querySelector("#message");
+    const throws = document.querySelector("#throws");
+    const result = document.querySelector("#result");
+
+    let playerWins = 0;
+    let computerWins = 0;
+    let tieCount = 0;
+    let round = 0;
+
+    function play(playerMove) {
+      const computerMove = Math.floor(Math.random() * 3) + 1;
+      round += 1;
+      roundLabel.textContent = `Round ${round}`;
+      throws.textContent = `You threw ${moves[playerMove]}. The computer threw ${moves[computerMove]}.`;
+
+      if (playerMove === computerMove) {
+        tieCount += 1;
+        message.textContent = "It's a tie!";
+        result.dataset.outcome = "tie";
+      } else if (
+        (playerMove === 1 && computerMove === 3) ||
+        (playerMove === 2 && computerMove === 1) ||
+        (playerMove === 3 && computerMove === 2)
+      ) {
+        playerWins += 1;
+        message.textContent = "You win!";
+        result.dataset.outcome = "win";
+      } else {
+        computerWins += 1;
+        message.textContent = "The computer wins!";
+        result.dataset.outcome = "lose";
+      }
+
+      playerScore.textContent = playerWins;
+      computerScore.textContent = computerWins;
+      ties.textContent = tieCount;
+    }
+
+    document.querySelectorAll(".choice").forEach((button) => {
+      button.addEventListener("click", () => play(Number(button.dataset.move)));
+    });
+
+    document.querySelector("#reset").addEventListener("click", () => {
+      playerWins = 0;
+      computerWins = 0;
+      tieCount = 0;
+      round = 0;
+      playerScore.textContent = "0";
+      computerScore.textContent = "0";
+      ties.textContent = "0";
+      roundLabel.textContent = "Round 0";
+      message.textContent = "Your move!";
+      throws.textContent = "Pick rock, paper, or scissors to play.";
+      result.dataset.outcome = "start";
+    });
+  </script>
+</body>
+</html>
